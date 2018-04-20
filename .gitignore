@@ -5,3 +5,4 @@ conf.js
 
 # Serverless directories
 .serverless
+.webpack
