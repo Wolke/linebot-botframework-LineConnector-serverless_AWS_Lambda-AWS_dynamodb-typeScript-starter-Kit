@@ -1,5 +1,5 @@
 {
-  "name": "linebot-serverless-dynamodb-LineConnector-typeScript-starter-Kit",
+  "name": "linebot",
   "version": "1.0.1",
   "description": "",
   "main": "conf.js",
@@ -15,7 +15,7 @@
     "webpack": "^3.10.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"tsc --watch\" \"sls offline start\""
   },
   "keywords": [],
   "author": "",
