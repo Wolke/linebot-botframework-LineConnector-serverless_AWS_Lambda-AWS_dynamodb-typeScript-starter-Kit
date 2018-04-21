@@ -1,6 +1,6 @@
 {
-  "name": "onlinereadbook",
-  "version": "1.0.0",
+  "name": "linebot-serverless-dynamodb-LineConnector-typeScript-starter-Kit",
+  "version": "1.0.1",
   "description": "",
   "main": "conf.js",
   "dependencies": {
