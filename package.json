@@ -1,5 +1,5 @@
 {
-  "name": "linebot-serverless-dynamodb-LineConnector-typeScript-starter-Kit",
+  "name": "linebot",
   "version": "1.0.1",
   "description": "",
   "main": "conf.js",
