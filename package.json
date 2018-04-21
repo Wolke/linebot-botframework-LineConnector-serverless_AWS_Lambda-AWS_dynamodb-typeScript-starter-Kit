@@ -15,7 +15,7 @@
     "webpack": "^3.10.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsc --watch && sls offline start"
   },
   "keywords": [],
   "author": "",
