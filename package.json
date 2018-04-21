@@ -5,7 +5,7 @@
   "main": "conf.js",
   "dependencies": {
     "aws-sdk": "^2.211.0",
-    "botbuilder-linebot-connector": "^2.1.4",
+    "botbuilder-linebot-connector": "^2.2.3",
     "botbuilder-storage": "^1.0.2"
   },
   "devDependencies": {
