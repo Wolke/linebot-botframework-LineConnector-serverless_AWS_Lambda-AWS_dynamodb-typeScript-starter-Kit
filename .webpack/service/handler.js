@@ -36687,12 +36687,12 @@ var ChatConnector = (function () {
                 };
                 _this.addUserAgent(opt);
                 request(opt, function (err, response, body) {
+                    _this.refreshingToken = undefined;
                     if (!err) {
                         if (body && response.statusCode < 300) {
                             var oauthResponse = JSON.parse(body);
                             _this.accessToken = oauthResponse.access_token;
                             _this.accessTokenExpires = new Date().getTime() + ((oauthResponse.expires_in - 300) * 1000);
-                            _this.refreshingToken = undefined;
                             resolve(_this.accessToken);
                         }
                         else {
@@ -36703,6 +36703,9 @@ var ChatConnector = (function () {
                         reject(err);
                     }
                 });
+            }).catch(function (err) {
+                _this.refreshingToken = undefined;
+                throw err;
             });
         }
         this.refreshingToken.then(function (token) { return cb(null, token); }, function (err) { return cb(err, null); });
@@ -58784,14 +58787,15 @@ var botbuilder_linebot_connector_1 = __webpack_require__(384);
 // var botbuilder_mongodb_storage_1 = require("botbuilder-mongodb-storage");
 var builder = __webpack_require__(118);
 var connector = new botbuilder_linebot_connector_1.LineConnector({
-  hasPushApi: true,
+  hasPushApi: false,
   // your line
   channelId: process.env.channelId || config.channelId,
   channelSecret: process.env.channelSecret || config.channelSecret,
   channelAccessToken: process.env.channelAccessToken || config.channelAccessToken
 });
 
-var bot = new builder.UniversalBot(connector).set('storage', adapter);
+var bot = new builder.UniversalBot(connector)
+  .set('storage', adapter);
 
 bot_dailog.default(bot)
 
@@ -72951,45 +72955,58 @@ const builder = __webpack_require__(118);
 var linebot = __webpack_require__(384);
 exports.default = (bot) => {
     bot.dialog("/", [
-        function (s) {
-            s.send("財神到！");
-            console.log("who speak", s.message.from);
-            s.send(new builder.Message(s)
-                .addAttachment(new linebot.Sticker(s, 1, 4)));
-            s.send(`感謝 ${s.message.from.name} 加 本財神 好友!`);
-            s.send(`立碼送您３個紅包抽！`);
-            s.beginDialog("draw");
+        s => {
+            s.send("hello");
+            s.send(new builder.Message(s).addAttachment(new linebot.Sticker(s, 1, 2)));
+            s.beginDialog("ask_weather");
         },
         s => {
-            // s.beginDialog("draw")
-            s.send("end");
+            s.beginDialog("ask_pet");
         }
     ]);
-    bot.dialog("draw", [
+    bot.dialog("ask_weather", [
         s => {
-            let getOption = () => new builder.HeroCard(s)
-                .title("💰財神到＜百萬紅包大方抽＞💰")
-                .subtitle("💰免費抽紅包試手氣。獎品豐富，等您拿。")
-                .text("抽紅包💰好玩喔💰")
-                .images([builder.CardImage.create(s, 'https://imagelab.nownews.com/?w=1080&q=85&src=http://s.nownews.com/11/b9/11b93df1ec7012f4d772c8bb0ac74e10.png')])
+            s.send("what`s the weather? now");
+            let getOption = (pic_url, title) => new builder.HeroCard(s)
+                .title("what`s the weather? now")
+                .subtitle("sunny rainy cloudy ...")
+                .text("how`s the weather? sunny wendy cloudy ...")
+                .images([builder.CardImage.create(s, pic_url)])
                 .buttons([
-                builder.CardAction.imBack(s, "抽", "選我抽紅包")
+                builder.CardAction.imBack(s, title, title)
             ]);
             var msg = new builder.Message(s);
             msg.attachmentLayout(builder.AttachmentLayout.carousel);
             msg.attachments([
-                getOption(),
-                getOption()
+                getOption("https://feelgoodinyourspace.files.wordpress.com/2012/06/020.jpg", "sunny"),
+                getOption("https://i2-prod.manchestereveningnews.co.uk/incoming/article9988099.ece/ALTERNATES/s810/Sunrise040915.jpg", "cloudy"),
+                getOption("https://4.bp.blogspot.com/-lb-NEOZnvT0/Wqk31cDIJtI/AAAAAAAAoGs/oLlL_4rDy1UosXRvyKkgK6DcyCDTB89qACLcBGAs/s1600/rainy-weather-1.jpg", "rainy")
             ]);
-            builder.Prompts.choice(s, msg, `抽`);
+            // builder.Prompts.text(s, msg)
+            builder.Prompts.choice(s, msg, `sunny|rainy|cloudy`);
         },
         (s, r) => {
             // console.log(r.response);
-            // s.send("抽")
-            var m = new builder.Message(s);
-            m.addAttachment(new builder.MediaCard(s).image(builder.CardImage.create(s, 'https://imagelab.nownews.com/?w=1080&q=85&src=http://s.nownews.com/5d/6b/5d6b74b674e643f522ed68ef83053a1f.JPG')));
-            s.send(m);
-            s.endDialog("再接再勵！");
+            s.endDialog(`it is ${r.response.entity}`);
+        }
+    ]);
+    bot.dialog("ask_pet", [
+        s => {
+            let m = new builder.Message(s).addAttachment(new builder.HeroCard(s)
+                .title("do you like pet?")
+                .subtitle("dog ,cat, other, no ...")
+                .text("do you like this song? ok ,like, unlike...")
+                .buttons([
+                builder.CardAction.imBack(s, "dog", "I like dog"),
+                builder.CardAction.imBack(s, "cat", "I like cat"),
+                builder.CardAction.imBack(s, "other", "I like other"),
+                builder.CardAction.imBack(s, "no", "I like no pet")
+            ]));
+            builder.Prompts.choice(s, m, "dog|cat|other|no");
+        },
+        (s, r) => {
+            // console.log(r.response);
+            s.endDialog(`you like ${r.response.entity}`);
         }
     ]);
 };
@@ -74613,7 +74630,7 @@ MemoryCookieStore.prototype.getAllCookies = function(cb) {
 /* 570 */
 /***/ (function(module, exports) {
 
-module.exports = {"_args":[["tough-cookie@2.3.3","/Users/chienhunglin/demo/linebot-serverless-dynamodb-LineConnector-typeScript-starter-Kit"]],"_from":"tough-cookie@2.3.3","_id":"tough-cookie@2.3.3","_inBundle":false,"_integrity":"sha1-C2GKVWW23qkL80JdBNVe3EdadWE=","_location":"/tough-cookie","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"tough-cookie@2.3.3","name":"tough-cookie","escapedName":"tough-cookie","rawSpec":"2.3.3","saveSpec":null,"fetchSpec":"2.3.3"},"_requiredBy":["/request"],"_resolved":"https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.3.3.tgz","_spec":"2.3.3","_where":"/Users/chienhunglin/demo/linebot-serverless-dynamodb-LineConnector-typeScript-starter-Kit","author":{"name":"Jeremy Stashewsky","email":"jstashewsky@salesforce.com"},"bugs":{"url":"https://github.com/salesforce/tough-cookie/issues"},"contributors":[{"name":"Alexander Savin"},{"name":"Ian Livingstone"},{"name":"Ivan Nikulin"},{"name":"Lalit Kapoor"},{"name":"Sam Thompson"},{"name":"Sebastian Mayr"}],"dependencies":{"punycode":"^1.4.1"},"description":"RFC6265 Cookies and Cookie Jar for node.js","devDependencies":{"async":"^1.4.2","string.prototype.repeat":"^0.2.0","vows":"^0.8.1"},"engines":{"node":">=0.8"},"files":["lib"],"homepage":"https://github.com/salesforce/tough-cookie","keywords":["HTTP","cookie","cookies","set-cookie","cookiejar","jar","RFC6265","RFC2965"],"license":"BSD-3-Clause","main":"./lib/cookie","name":"tough-cookie","repository":{"type":"git","url":"git://github.com/salesforce/tough-cookie.git"},"scripts":{"suffixup":"curl -o public_suffix_list.dat https://publicsuffix.org/list/public_suffix_list.dat && ./generate-pubsuffix.js","test":"vows test/*_test.js"},"version":"2.3.3"}
+module.exports = {"_args":[["tough-cookie@2.3.3","/Users/chienhunglin/demo/mbot"]],"_from":"tough-cookie@2.3.3","_id":"tough-cookie@2.3.3","_inBundle":false,"_integrity":"sha1-C2GKVWW23qkL80JdBNVe3EdadWE=","_location":"/tough-cookie","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"tough-cookie@2.3.3","name":"tough-cookie","escapedName":"tough-cookie","rawSpec":"2.3.3","saveSpec":null,"fetchSpec":"2.3.3"},"_requiredBy":["/request"],"_resolved":"https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.3.3.tgz","_spec":"2.3.3","_where":"/Users/chienhunglin/demo/mbot","author":{"name":"Jeremy Stashewsky","email":"jstashewsky@salesforce.com"},"bugs":{"url":"https://github.com/salesforce/tough-cookie/issues"},"contributors":[{"name":"Alexander Savin"},{"name":"Ian Livingstone"},{"name":"Ivan Nikulin"},{"name":"Lalit Kapoor"},{"name":"Sam Thompson"},{"name":"Sebastian Mayr"}],"dependencies":{"punycode":"^1.4.1"},"description":"RFC6265 Cookies and Cookie Jar for node.js","devDependencies":{"async":"^1.4.2","string.prototype.repeat":"^0.2.0","vows":"^0.8.1"},"engines":{"node":">=0.8"},"files":["lib"],"homepage":"https://github.com/salesforce/tough-cookie","keywords":["HTTP","cookie","cookies","set-cookie","cookiejar","jar","RFC6265","RFC2965"],"license":"BSD-3-Clause","main":"./lib/cookie","name":"tough-cookie","repository":{"type":"git","url":"git://github.com/salesforce/tough-cookie.git"},"scripts":{"suffixup":"curl -o public_suffix_list.dat https://publicsuffix.org/list/public_suffix_list.dat && ./generate-pubsuffix.js","test":"vows test/*_test.js"},"version":"2.3.3"}
 
 /***/ }),
 /* 571 */
@@ -80905,7 +80922,7 @@ internals.safeCharCodes = (function () {
 /* 584 */
 /***/ (function(module, exports) {
 
-module.exports = {"_args":[["hawk@6.0.2","/Users/chienhunglin/demo/linebot-serverless-dynamodb-LineConnector-typeScript-starter-Kit"]],"_from":"hawk@6.0.2","_id":"hawk@6.0.2","_inBundle":false,"_integrity":"sha512-miowhl2+U7Qle4vdLqDdPt9m09K6yZhkLDTWGoUiUzrQCn+mHHSmfJgAyGaLRZbPmTqfFFjRV1QWCW0VWUJBbQ==","_location":"/hawk","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"hawk@6.0.2","name":"hawk","escapedName":"hawk","rawSpec":"6.0.2","saveSpec":null,"fetchSpec":"6.0.2"},"_requiredBy":["/request"],"_resolved":"https://registry.npmjs.org/hawk/-/hawk-6.0.2.tgz","_spec":"6.0.2","_where":"/Users/chienhunglin/demo/linebot-serverless-dynamodb-LineConnector-typeScript-starter-Kit","author":{"name":"Eran Hammer","email":"eran@hammer.io","url":"http://hueniverse.com"},"babel":{"presets":["es2015"]},"browser":"dist/browser.js","bugs":{"url":"https://github.com/hueniverse/hawk/issues"},"dependencies":{"boom":"4.x.x","cryptiles":"3.x.x","hoek":"4.x.x","sntp":"2.x.x"},"description":"HTTP Hawk Authentication Scheme","devDependencies":{"babel-cli":"^6.1.2","babel-preset-es2015":"^6.1.2","code":"4.x.x","lab":"14.x.x"},"engines":{"node":">=4.5.0"},"homepage":"https://github.com/hueniverse/hawk#readme","keywords":["http","authentication","scheme","hawk"],"license":"BSD-3-Clause","main":"lib/index.js","name":"hawk","repository":{"type":"git","url":"git://github.com/hueniverse/hawk.git"},"scripts":{"build-client":"mkdir -p dist; babel lib/browser.js --out-file dist/browser.js","prepublish":"npm run-script build-client","test":"lab -a code -t 100 -L","test-cov-html":"lab -a code -r html -o coverage.html"},"version":"6.0.2"}
+module.exports = {"_args":[["hawk@6.0.2","/Users/chienhunglin/demo/mbot"]],"_from":"hawk@6.0.2","_id":"hawk@6.0.2","_inBundle":false,"_integrity":"sha512-miowhl2+U7Qle4vdLqDdPt9m09K6yZhkLDTWGoUiUzrQCn+mHHSmfJgAyGaLRZbPmTqfFFjRV1QWCW0VWUJBbQ==","_location":"/hawk","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"hawk@6.0.2","name":"hawk","escapedName":"hawk","rawSpec":"6.0.2","saveSpec":null,"fetchSpec":"6.0.2"},"_requiredBy":["/request"],"_resolved":"https://registry.npmjs.org/hawk/-/hawk-6.0.2.tgz","_spec":"6.0.2","_where":"/Users/chienhunglin/demo/mbot","author":{"name":"Eran Hammer","email":"eran@hammer.io","url":"http://hueniverse.com"},"babel":{"presets":["es2015"]},"browser":"dist/browser.js","bugs":{"url":"https://github.com/hueniverse/hawk/issues"},"dependencies":{"boom":"4.x.x","cryptiles":"3.x.x","hoek":"4.x.x","sntp":"2.x.x"},"description":"HTTP Hawk Authentication Scheme","devDependencies":{"babel-cli":"^6.1.2","babel-preset-es2015":"^6.1.2","code":"4.x.x","lab":"14.x.x"},"engines":{"node":">=4.5.0"},"homepage":"https://github.com/hueniverse/hawk#readme","keywords":["http","authentication","scheme","hawk"],"license":"BSD-3-Clause","main":"lib/index.js","name":"hawk","repository":{"type":"git","url":"git://github.com/hueniverse/hawk.git"},"scripts":{"build-client":"mkdir -p dist; babel lib/browser.js --out-file dist/browser.js","prepublish":"npm run-script build-client","test":"lab -a code -t 100 -L","test-cov-html":"lab -a code -r html -o coverage.html"},"version":"6.0.2"}
 
 /***/ }),
 /* 585 */
@@ -97943,7 +97960,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (nam
 /* 715 */
 /***/ (function(module, exports) {
 
-module.exports = {"_args":[["botbuilder@3.14.0","/Users/chienhunglin/demo/linebot-serverless-dynamodb-LineConnector-typeScript-starter-Kit"]],"_from":"botbuilder@3.14.0","_id":"botbuilder@3.14.0","_inBundle":false,"_integrity":"sha512-Hzect51OCaCtdnduBoquZcUpYVK+9lto0KWlUm1rSjsImx7ff/aa/K9wHpsKBmzEENs6/xslgHU2XqPhYg36lw==","_location":"/botbuilder","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"botbuilder@3.14.0","name":"botbuilder","escapedName":"botbuilder","rawSpec":"3.14.0","saveSpec":null,"fetchSpec":"3.14.0"},"_requiredBy":["/botbuilder-linebot-connector","/botbuilder-storage"],"_resolved":"https://registry.npmjs.org/botbuilder/-/botbuilder-3.14.0.tgz","_spec":"3.14.0","_where":"/Users/chienhunglin/demo/linebot-serverless-dynamodb-LineConnector-typeScript-starter-Kit","author":{"name":"Microsoft Corp."},"bugs":{"url":"https://github.com/Microsoft/BotBuilder/issues"},"dependencies":{"async":"^1.5.2","base64url":"^2.0.0","chrono-node":"^1.1.3","jsonwebtoken":"^7.0.1","promise":"^7.1.1","request":"^2.69.0","rsa-pem-from-mod-exp":"^0.8.4","sprintf-js":"^1.0.3","url-join":"^1.1.0"},"description":"Bot Builder is a dialog system for building rich bots on virtually any platform.","devDependencies":{"@types/url-join":"^0.8.1","mocha":"^2.4.5"},"homepage":"https://github.com/Microsoft/BotBuilder#readme","keywords":["botbuilder","bots","chatbots"],"license":"MIT","main":"./lib/botbuilder.js","name":"botbuilder","repository":{"type":"git","url":"git+https://github.com/Microsoft/BotBuilder.git"},"scripts":{"test":"mocha tests/*.js"},"typings":"./lib/botbuilder.d.ts","version":"3.14.0"}
+module.exports = {"_from":"botbuilder","_id":"botbuilder@3.14.1","_inBundle":false,"_integrity":"sha512-LczOC6tPziwqUEvbm5svXn6pZ3818UMYdG/QkxGYXTfjUD7DJFgXfBNGRGJq2wVkh6UbReTv6aWasX2OYjUbNg==","_location":"/botbuilder","_phantomChildren":{},"_requested":{"type":"tag","registry":true,"raw":"botbuilder","name":"botbuilder","escapedName":"botbuilder","rawSpec":"","saveSpec":null,"fetchSpec":"latest"},"_requiredBy":["#USER","/"],"_resolved":"https://registry.npmjs.org/botbuilder/-/botbuilder-3.14.1.tgz","_shasum":"c623b444d28de6ab667875672baa84887ef0a966","_spec":"botbuilder","_where":"/Users/chienhunglin/demo/mbot","author":{"name":"Microsoft Corp."},"bugs":{"url":"https://github.com/Microsoft/BotBuilder/issues"},"bundleDependencies":false,"dependencies":{"async":"^1.5.2","base64url":"^2.0.0","chrono-node":"^1.1.3","jsonwebtoken":"^7.0.1","promise":"^7.1.1","request":"^2.69.0","rsa-pem-from-mod-exp":"^0.8.4","sprintf-js":"^1.0.3","url-join":"^1.1.0"},"deprecated":false,"description":"Bot Builder is a dialog system for building rich bots on virtually any platform.","devDependencies":{"@types/url-join":"^0.8.1","mocha":"^2.4.5"},"homepage":"https://github.com/Microsoft/BotBuilder#readme","keywords":["botbuilder","bots","chatbots"],"license":"MIT","main":"./lib/botbuilder.js","name":"botbuilder","repository":{"type":"git","url":"git+https://github.com/Microsoft/BotBuilder.git"},"scripts":{"test":"mocha tests/*.js"},"typings":"./lib/botbuilder.d.ts","version":"3.14.1"}
 
 /***/ }),
 /* 716 */
