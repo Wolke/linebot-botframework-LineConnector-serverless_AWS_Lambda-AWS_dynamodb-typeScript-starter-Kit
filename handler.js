@@ -32,8 +32,8 @@ const adapter = new DynamoBotStorage(client, settings)
 
 // var config = require("./conf");
 var fs = require('fs');
-var config = JSON.parse(fs.readFileSync('file', 'utf8'));
-console.log("config", config)
+var config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
+// console.log("config", config)
 
 var bot_dailog = require("./bot/bot")
 var botbuilder_linebot_connector_1 = require("botbuilder-linebot-connector");
