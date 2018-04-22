@@ -1,14 +1,15 @@
 # use
 change serverless.yml service name to your setting
 serverless deploy // this can create AWS dynamoDB table.
-add conf.js
+add config.json
 ```
 //LINE setting
 
-module.exports = {
-    channelId: "1561278xxx",
-    channelSecret: "xxx",
-    channelAccessToken: "xxx"
+{
+    "channelId": "xxx",
+    "channelSecret": "xxxxxxxx",
+    "channelAccessToken": "xxxxxxxxxxxx",
+    "domainName": "xxx.com"
 }
 ```
 npm run dev

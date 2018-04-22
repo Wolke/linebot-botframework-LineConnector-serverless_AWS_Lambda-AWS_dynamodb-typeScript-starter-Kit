@@ -2,7 +2,7 @@
 node_modules
 jspm_packages
 conf.js
-
+config.json
 # Serverless directories
 .serverless
 .webpack

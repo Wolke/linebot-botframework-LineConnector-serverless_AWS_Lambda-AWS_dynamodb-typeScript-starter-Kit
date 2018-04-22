@@ -10,9 +10,11 @@ export default (bot: builder.UniversalBot) => {
         },
         s => {
             s.beginDialog("ask_pet")
+        }, s => {
+            s.endDialog()
         }
-    ]);
 
+    ]);
     bot.dialog("ask_weather", [
         s => {
             s.send("what`s the weather? now")
@@ -59,8 +61,8 @@ export default (bot: builder.UniversalBot) => {
         },
         (s: builder.Session, r: builder.IPromptChoiceResult) => {
             // console.log(r.response);
-
             s.endDialog(`you like ${r.response.entity}`);
+
         }
     ])
 }

@@ -30,7 +30,9 @@ const settings = {
 const adapter = new DynamoBotStorage(client, settings)
 
 
-var config = require("./conf");
+// var config = require("./conf");
+var fs = require('fs');
+var config = JSON.parse(fs.readFileSync('file', 'utf8'));
 console.log("config", config)
 
 var bot_dailog = require("./bot/bot")
