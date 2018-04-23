@@ -41,6 +41,7 @@ var botbuilder_linebot_connector_1 = require("botbuilder-linebot-connector");
 var builder = require('botbuilder');
 var connector = new botbuilder_linebot_connector_1.LineConnector({
   hasPushApi: false,
+  autoGetUserProfile: true,
   // your line
   channelId: process.env.channelId || config.channelId,
   channelSecret: process.env.channelSecret || config.channelSecret,

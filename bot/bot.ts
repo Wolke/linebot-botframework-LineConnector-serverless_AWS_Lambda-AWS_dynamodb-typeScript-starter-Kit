@@ -59,9 +59,11 @@ export default (bot: builder.UniversalBot) => {
             )
             builder.Prompts.choice(s, m, "dog|cat|other|no")
         },
-        (s: builder.Session, r: builder.IPromptChoiceResult) => {
+        async (s: builder.Session, r: builder.IPromptChoiceResult) => {
             // console.log(r.response);
-            s.endDialog(`you like ${r.response.entity}`);
+            let u = await linebot.getUserProfile(s.message.from.id)
+            console.log("u" + u)
+            s.endDialog(`${s.message.from.name} like ${r.response.entity}`);
 
         }
     ])
