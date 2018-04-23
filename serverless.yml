@@ -49,12 +49,3 @@ resources:
 plugins:
   - serverless-webpack
   - serverless-offline
-  - serverless-domain-manager
-
-
-custom:
-  customDomain:
-    domainName: ${file(./config.json):domainName}
-    basePath: dev
-    stage: ${self:provider.stage}
-    createRoute53Record: true
